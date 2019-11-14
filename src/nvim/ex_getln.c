@@ -6073,11 +6073,8 @@ static int open_cmdwin(void)
 
   set_bufref(&old_curbuf, curbuf);
 
-  /* Save current window sizes. */
+  // Save current window sizes.
   win_size_save(&winsizes);
-
-  /* Don't execute autocommands while creating the window. */
-  block_autocmds();
 
   // When using completion in Insert mode with <C-R>=<C-F> one can open the
   // command line window, but we don't want the popup menu then.
@@ -6087,10 +6084,9 @@ static int open_cmdwin(void)
   cmdmod.tab = 0;
   cmdmod.noswapfile = 1;
 
-  /* Create a window for the command-line buffer. */
+  // Create a window for the command-line buffer.
   if (win_split((int)p_cwh, WSP_BOT) == FAIL) {
     beep_flush();
-    unblock_autocmds();
     return K_IGNORE;
   }
   cmdwin_type = get_cmdline_type();
@@ -6105,12 +6101,10 @@ static int open_cmdwin(void)
   curbuf->b_p_ma = true;
   curwin->w_p_fen = false;
 
-  // Do execute autocommands for setting the filetype (load syntax).
-  unblock_autocmds();
-  // But don't allow switching to another buffer.
+  // Don't allow switching to another buffer.
   curbuf_lock++;
 
-  /* Showing the prompt may have set need_wait_return, reset it. */
+  // Showing the prompt may have set need_wait_return, reset it.
   need_wait_return = FALSE;
 
   const int histtype = hist_char2type(cmdwin_type);
@@ -6249,8 +6243,6 @@ static int open_cmdwin(void)
       }
     }
 
-    /* Don't execute autocommands while deleting the window. */
-    block_autocmds();
     // Avoid command-line window first character being concealed
     curwin->w_p_cole = 0;
     wp = curwin;
@@ -6264,10 +6256,8 @@ static int open_cmdwin(void)
       close_buffer(NULL, bufref.br_buf, DOBUF_WIPE, false);
     }
 
-    /* Restore window sizes. */
+    // Restore window sizes.
     win_size_restore(&winsizes);
-
-    unblock_autocmds();
   }
 
   ga_clear(&winsizes);
